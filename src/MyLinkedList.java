@@ -5,7 +5,6 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
-    private int modCount; // <E> added here
 
     private class Node<E> {
         E data;
@@ -20,12 +19,12 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
             this.next = next;
         }
     }
-
+    private int modCount;
     private Node<E> head;
     private Node<E> tail;
     private int size;
 
-    public MyLinkedList() { //Default constructor
+    public MyLinkedList() {
         head = null;
         tail = null;
         modCount = 0;
@@ -36,12 +35,46 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         addFirst(element);
     }
 
-    public MyLinkedList(E[] elements) {
-        // Constructor with elements array
-        for (E element : elements) {
-            addFirst(element);
+    /**
+     * Instantiates a new list containing the elements of the provided data array.
+     *
+     * @param dataArray Array of data elements to be instantiated.
+     */
+    public MyLinkedList(E[] dataArray) {
+        for (E element : dataArray) {
+            addLast(element);
         }
     }
+
+    //BEGIN BONUS QUESTION
+    //
+    //
+    //
+    /** BONUS QUESTION
+     * Copies the current list and returns the copy as a new MyLinkedList.
+     *
+     * @return a new MyLinkedList with the contents of the current list.
+     */
+    public MyLinkedList copyList() {
+        if (head == null) {
+            return new MyLinkedList();
+        }
+        if (size == 1) {
+            return new MyLinkedList(head.data);
+        }
+        MyLinkedList<E> newList = new MyLinkedList<>(head.data);
+        Node<E> current = head.next;
+        while (current != null) {
+            newList.addLast(current.data);
+            current = current.next;
+        }
+        return newList;
+    }
+    //
+    //
+    //
+    //END BONUS QUESTION
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -59,28 +92,19 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         sb.append("]");
         return sb.toString();
     }
-    public MyLinkedList copyList() {
-        if(head == null) {
-            return new MyLinkedList();
-        }
-        if(size == 1) {
-            return new MyLinkedList(head.data);
-        }
-        MyLinkedList<E> newList = new MyLinkedList<>(head.data);
-        Node<E> current = head.next;
-        while(current != null) {
-            newList.addLast(current.data);
-            current = current.next;
-        }
-        return newList;
-    }
-    public void addFirst(E e) {
-        Node<E> newNode = new Node<>(e);
+
+
+    /**
+     * Adds the provided data element to the first position of the list.
+     *
+     * @param data Data element to be added.
+     */
+    public void addFirst(E data) {
+        Node<E> newNode = new Node<>(data);
         if (head == null) {
             head = newNode; // Use <E> for the Node type
             tail = head;
-        }
-        else {
+        } else {
             newNode.next = head;
             head = newNode;
         }
@@ -88,17 +112,27 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         size++;
     }
 
-    public void addLast(E e) {
+    /**
+     * Adds the provided data element to the last position of the list.
+     *
+     * @param data Data element to be added.
+     */
+    public void addLast(E data) {
         // Add element at the end of the list
         if (head == null) {
-            addFirst(e);
+            addFirst(data);
         }
-        tail.next = new Node<>(e);
+        tail.next = new Node<>(data);
         tail = tail.next;
         modCount++;
         size++;
     }
 
+    /**
+     * Gets the data of the first element of the list.
+     *
+     * @return the data value of the first element of the list.
+     */
     public E getFirst() {
         if (head == null) {
             throw new UnderflowException("List is empty, cannot retrieve the first element.");
@@ -107,6 +141,11 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return head.data; // Return the first element
     }
 
+    /**
+     * Gets the data of the last element of the list.
+     *
+     * @return the data value of the last element of the list.
+     */
     public E getLast() {
         if (head == null) { //since it is enforced that tail == null iff head == null,  I am checking for head == null here for logical consistency across the class.
             throw new UnderflowException("List is empty, cannot retrieve the last element.");
@@ -115,6 +154,11 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return tail.data; // Return the last element
     }
 
+    /**
+     * Removes the first element of the list.
+     *
+     * @return the value of the removed element.
+     */
     public E removeFirst() {
         // Remove and return the first element
         if (head == null) {
@@ -133,6 +177,11 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return deleted.data;
     }
 
+    /**
+     * Removed the last element of the list.
+     *
+     * @return the value of the removed element.
+     */
     public E removeLast() {
         // Return and remove the last element
         if (head == null) { //since it is enforced that tail == null iff head == null,  I am checking for head == null here for logical consistency across the class.
@@ -162,19 +211,25 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return current.data;
     }
 
+    /**
+     * Adds the provided data element to the provided index of the list.
+     *
+     * @param index position in the list to add the data element.
+     * @param data  data element to be added at the index position.
+     */
     @Override
-    public void add(int index, E e) {
+    public void add(int index, E data) {
         if (index >= size || index < 0) {
             throw new OverflowException("Index of size " + index + " is not valid for zero-indexed list of size " + size + ".");
         }
 
         if (index == 0) {
-            addFirst(e);
+            addFirst(data);
             return;
         }
 
         if (index == size - 1) {
-            addLast(e);
+            addLast(data);
             return;
         }
 
@@ -183,11 +238,14 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
             previous = previous.next;
         }
 
-        previous.next = new Node<E>(e, previous.next);
+        previous.next = new Node<E>(data, previous.next);
         modCount++;
         size++;
     }
 
+    /**
+     * Clears the list of all elements.
+     */
     @Override
     public void clear() {
         // Clear the list
@@ -197,12 +255,18 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         size = 0;
     }
 
+    /**
+     * Searches the list for provided data element and returns boolean value indicating its presence in the list.
+     *
+     * @param data data element to be searched for.
+     * @return true if data element is present in the list, otherwise false.
+     */
     @Override
-    public boolean contains(Object o) {
+    public boolean contains(Object data) {
         Node<E> current = head;
 
         while (current != null) {
-            if (current.data.equals(o)) {
+            if (current.data.equals(data)) {
                 return true;
             }
             current = current.next;
@@ -212,6 +276,12 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
 
     }
 
+    /**
+     * Retrieves the data element at the provided index of the list.
+     *
+     * @param index index of the list to retrieve the data element.
+     * @return the data element at the provided index of the list.
+     */
     @Override
     public E get(int index) {
         if (head == null) return null;
@@ -233,15 +303,21 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
     }
 
 
+    /**
+     * Traverses the list from the head and returns the index of the first occurrence of
+     * the provided element.
+     *
+     * @param data Data element to search list for.
+     * @return the index of the first match or -1 if no match.
+     */
     @Override
-    public int indexOf(Object o) {
-        // Get the index of the first occurrence of the element
+    public int indexOf(Object data) {
         int index = 0;
         Node<E> current = head;
 
         while (current != null) {
 
-            if (current.data.equals(o)) {
+            if (current.data.equals(data)) {
                 return index;
             }
 
@@ -251,16 +327,23 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return -1;
     }
 
+    /**
+     * Traverses the list from the head and returns the index of the last occurrence of
+     * the provided element.
+     *
+     * @param data Data element to search list for.
+     * @return the index of the last match of -1 if no match.
+     */
     @Override
-    public int lastIndexOf(Object o) {
-       // Get the index of the last occurrence of the element
+    public int lastIndexOf(Object data) {
+        // Get the index of the last occurrence of the element
         int index = 0;
         int indexOfLastMatch = -1;
         Node<E> current = head;
 
         while (current != null) {
 
-            if (current.data.equals(o)) {
+            if (current.data.equals(data)) {
                 indexOfLastMatch = index;
             }
 
@@ -270,19 +353,24 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return indexOfLastMatch;
     }
 
+    /**
+     * Removes the element of the list at the provided index.
+     *
+     * @param index index of the element to be removed from the list.
+     * @return returns the removed data element.
+     */
     @Override
     public E remove(int index) {
-        // Remove the element at the specified index
-        if(head == null) {
+        if (head == null) {
             throw new UnderflowException("Cannot remove from empty list.");
         }
-        if(index >= size || index < 0) {
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException("Index of size " + index + " is not valid for zero-indexed list of size " + size + ".");
         }
         if (index == 0) {
             return removeFirst();
         }
-        if(index == size -1) {
+        if (index == size - 1) {
             return removeLast();
         }
 
@@ -299,13 +387,20 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
         return current.data;
     }
 
+    /**
+     * Sets the data element at the position of index to the data value e.
+     *
+     * @param index index of the element to be set.
+     * @param data  data element to set at the provided index.
+     * @return
+     */
     @Override
-    public E set(int index, E e) {
+    public E set(int index, E data) {
         // Replace the element at the specified index and return the old element
-        if(head == null) {
+        if (head == null) {
             throw new IndexOutOfBoundsException("Cannot set elements on empty list.");
         }
-        if(index >= size || index < 0) {
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException("Index of size " + index + " is not valid for zero-indexed list of size " + size + ".");
         }
         Node<E> current = head;
@@ -314,15 +409,20 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
             current = current.next;
         }
         E oldData = current.data;
-        current.data = e;
+        current.data = data;
         modCount++;
         return oldData;
     }
+
+
+    //Below are generic implementations of iterators for convenience.
+
 
     @Override
     public Iterator<E> iterator() {
         return new LinkedListIterator();
     }
+
     private class LinkedListIterator implements Iterator<E> {
         private Node<E> current = head;
         private int expectedModCount = modCount;
@@ -354,17 +454,16 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
             if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
             }
-            // Handle removal when the last returned node is the head
+
             if (lastReturned == head) {
                 removeFirst();
             } else {
-                // Find the node before lastReturned
                 Node<E> previous = head;
                 while (previous.next != lastReturned) {
                     previous = previous.next;
                 }
                 previous.next = lastReturned.next;
-                if (lastReturned == tail) { // If we're removing the tail
+                if (lastReturned == tail) {
                     tail = previous;
                 }
                 size--;
@@ -374,6 +473,7 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
             lastReturned = null;
         }
     }
+
     @Override
     public void forEach(Consumer<? super E> action) {
         Node<E> current = head;
@@ -385,11 +485,12 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
 
     @Override
     public Spliterator<E> spliterator() {
-        return new LinkedListSpliterator(head, size, modCount); // Return a Spliterator over the elements in the list
+        return new LinkedListSpliterator(head, size, modCount);
     }
+
     private class LinkedListSpliterator implements Spliterator<E> {
         private Node<E> current;
-        private int est; // size estimate
+        private int est;
         private int expectedModCount;
 
         LinkedListSpliterator(Node<E> origin, int size, int modCount) {
@@ -411,8 +512,7 @@ public class MyLinkedList<E> extends MyAbstractList<E> implements Iterable<E> {
 
         @Override
         public Spliterator<E> trySplit() {
-            // Not implementing splitting; return null means this Spliterator is not splittable
-            return null;
+            return null; //Split not desired for linked list.
         }
 
         @Override
