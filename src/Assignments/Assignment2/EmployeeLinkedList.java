@@ -37,14 +37,25 @@ public class EmployeeLinkedList{
 
     Node head;
 
+    /**
+     * @param head Node to be inserted as the head of the new list.
+     */
     public EmployeeLinkedList(Node head) {
         this.head = head;
     }
 
+    /**
+     * Initializes a new list with no employee nodes.
+     */
     public EmployeeLinkedList() {
         this.head = null;
     }
 
+    /**
+     * Adds the provided employee to the head of the list.
+     *
+     * @param emp Employee object to be added to the list.
+     */
     void addEmployee(Employee emp) {
         if (head == null) {
             head = new Node(emp);
@@ -54,7 +65,19 @@ public class EmployeeLinkedList{
         }
     }
 
-    void deleteEmployee(int employeeID) { //I would love for this to at least return a boolean to indicate if a deletion occurred, but we are instructed to make this a void
+    /**
+     * Traverses the list and removes any elements from the list where the employee ID matches the employeeID parameter.
+     *
+     * @param employeeID employee ID of employee to be removed from the list.
+     */
+    void deleteEmployee(int employeeID) {
+
+        //I would love for this to at least return a boolean to indicate if a deletion occurred, but we are instructed to make this a void
+        //Since this method can't give feedback, I have opted to make the function of this method to be effectively taking the intersection of original list
+        //and a potential version of the list excluding any employees matching the provided employee ID. Turing this method into a means of ensuring
+        //an employee of the provided ID is not in the list, but not necessarily a means of deleting a specific occurrence of a node.
+        //This is an intentional decision despite the fact that employeeID uniqueness is technically enforced and for the purposes of this
+        //assignment it shouldn't come up, I still feel as though it's a solid implementation in principle.
 
         if (head == null) {
             return;
@@ -76,6 +99,9 @@ public class EmployeeLinkedList{
         }
     }
 
+    /**
+     * Displays and formats employee information in table format for each employee in this list.
+     */
     void displayEmployees() {
         System.out.println("\nEmployee List:");
         System.out.printf("%-5s %-10s %-20s %-15s %-10s%n", "Line", "EmpID", "Name", "Position", "Salary");

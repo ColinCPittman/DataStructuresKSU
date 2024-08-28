@@ -10,6 +10,14 @@ public class Employee {
     private String position;
     private double salary;
 
+    /**
+     * Instantiates a new employee with the provided values. EmployeeID is automatically assigned
+     * via a static variable to ensure each employee has a unique ID.
+     *
+     * @param name name of the new employee.
+     * @param position job position of the new employee.
+     * @param salary salary of the new employee.
+     */
     public Employee(String name, String position, double salary) {
         this.name = name;
         this.position = position;
