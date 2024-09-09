@@ -8,6 +8,22 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class testStack {
+    public static final String menu = """
+            
+            -----MAIN MENU-----
+            1. Test function topToBottom with integer stack
+            2. Test function bottomToTop with double stack
+            3. Test function flipStack with string stack
+            4. Test function searchStack with integer stack
+            5. Exit program
+            """;
+    static final Scanner scanner = new Scanner(System.in);
+    static final int testTopToBottom = 1;
+    static final int testBottomToTop = 2;
+    static final int testFlipStack = 3;
+    static final int testSearchStack = 4;
+    static final int exit = 5;
+
     public static void main(String[] args) {
 
         Stack<Integer> integerStack = new Stack<>();
@@ -15,6 +31,9 @@ public class testStack {
         Stack<String> stringStack = new Stack<>();
         String inputString;
         while (true) {
+            integerStack.clear();
+            doubleStack.clear();
+            stringStack.clear();
             System.out.println("\n" + menu);
             int choice = promptUserForInteger("Enter your choice: ");
 
@@ -23,22 +42,24 @@ public class testStack {
                     while (true) {
                         inputString = promptUserForString("Testing function topToBottom:\n" +
                                 "Enter integers to push onto the stack (space-separated):");
+
                         if (hasOnlyIntegers(inputString.split(" "))) {
+
+                            for (String string : inputString.split(" ")) {
+                                integerStack.push(Integer.parseInt(string));
+                            }
+
                             break;
                         } else {
                             System.out.println("Invalid input, try again.");
                         }
-                        //populating the ints to the stack.
-                        for (String string : inputString.split(" ")) {
-                            integerStack.push(Integer.parseInt(string));
-                        }
-
-                        System.out.print("Stack content: ");
-                        printStack(integerStack);
-                        System.out.println("\nFunction output: ");
-                        topToBottom(integerStack);
                     }
 
+                    System.out.print("Stack content: ");
+                    printStack(integerStack);
+
+                    System.out.print("\nFunction output: ");
+                    topToBottom(integerStack);
 
                     break;
 
@@ -46,29 +67,60 @@ public class testStack {
                     while (true) {
                         inputString = promptUserForString("Testing function bottomToTop:\n" +
                                 "Enter doubles to push onto the stack (space-separated):");
+
                         if (hasOnlyDoubles(inputString.split(" "))) {
+                            for (String string : inputString.split(" ")) {
+                                doubleStack.push(Double.parseDouble(string));
+                            }
                             break;
                         } else {
                             System.out.println("Invalid input, try again.");
                         }
                     }
+
+
+                    System.out.print("Stack content: ");
+                    printStack(doubleStack);
+                    System.out.print("\nFunction output: ");
+                    bottomToTop(doubleStack);
+
                     break;
 
                 case testFlipStack:
                     inputString = promptUserForString("Testing function flipStack:\n" +
                             "Enter strings to push onto the stack (space-separated):");
+                    for (String string : inputString.split(" ")) {
+                        stringStack.push(string);
+                    }
+
+                    System.out.print("Stack content before calling flipStack: ");
+                    printStack(stringStack);
+                    System.out.print("\nStack content after calling flipStack: ");
+                    stringStack = flipStack(stringStack);
+                    printStack(stringStack);
 
                     break;
+
                 case testSearchStack:
                     while (true) {
                         inputString = promptUserForString("Testing function searchStack:\n" +
                                 "Enter integers to push onto the stack (space-separated):");
+
                         if (hasOnlyIntegers(inputString.split(" "))) {
+                            for (String string : inputString.split(" ")) {
+                                integerStack.push(Integer.parseInt(string));
+                            }
                             break;
                         } else {
                             System.out.println("Invalid input, try again.");
                         }
                     }
+
+                    System.out.print("Stack content: ");
+                    printStack(integerStack);
+                    int targetInput = promptUserForInteger("\nEnter target value to search for: ");
+                    System.out.print("Function output: ");
+                    System.out.println(searchStack(integerStack, targetInput));
                     break;
 
                 case exit:
@@ -84,31 +136,55 @@ public class testStack {
     private static <E> void printStack(Stack<E> stack) {
         Stack<E> temp = new Stack<>();
         E element;
-        while(!stack.isEmpty()) {
+        while (!stack.isEmpty()) {
             element = stack.pop();
             System.out.print(element + " ");
             temp.push(element);
         }
-        while(!temp.isEmpty()) {
+        while (!temp.isEmpty()) {
+
             stack.push(temp.pop());
         }
     }
 
     public static void topToBottom(Stack<Integer> stack) {
-
+        Stack<Integer> temp = new Stack<>();
+        int element;
+        while (!stack.isEmpty()) {
+            element = stack.pop();
+            System.out.print(element + " ");
+            temp.push(element);
+        }
+        while (!temp.isEmpty()) {
+            stack.push(temp.pop());
+        }
     }
 
     public static void bottomToTop(Stack<Double> stack) {
         // Method implementation will go here
+        Stack<Double> temp = new Stack<>();
+        Double element;
+        while (!stack.isEmpty()) {
+
+            temp.push(stack.pop());
+        }
+        while (!temp.isEmpty()) {
+            element = temp.pop();
+            System.out.print(element + " ");
+            stack.push(element);
+        }
     }
 
     public static Stack<String> flipStack(Stack<String> stack) {
         // Method implementation will go here
-        return stack; // Placeholder return statement
-    }
+        Stack<String> temp = new Stack<>();
+        String element;
+        while (!stack.isEmpty()) {
 
-    public static void populateStack(String content) {
-
+            temp.push(stack.pop());
+        }
+        stack = temp;
+        return stack;
     }
 
     public static boolean hasOnlyIntegers(String[] inputArray) {
@@ -134,8 +210,20 @@ public class testStack {
     }
 
     public static boolean searchStack(Stack<Integer> stack, int target) {
-        // Method implementation will go here
-        return false; // Placeholder return statement
+        Boolean result = false;
+        Stack<Integer> temp = new Stack<Integer>();
+        int element;
+        while (!stack.isEmpty()) {
+            element = stack.pop();
+            if (element == target) {
+                result = true;
+            }
+            temp.push(element);
+        }
+        while (!temp.isEmpty()) {
+            stack.push(temp.pop());
+        }
+        return result;
     }
 
     /**
@@ -148,21 +236,6 @@ public class testStack {
         System.out.print(prompt);
         return scanner.nextLine();
     }
-
-    public static final String menu = """
-            -----MAIN MENU-----
-            1. Test function topToBottom with integer stack
-            2. Test function bottomToTop with double stack
-            3. Test function flipStack with string stack
-            4. Test function searchStack with integer stack
-            5. Exit program
-            """;
-    static final Scanner scanner = new Scanner(System.in);
-    static final int testTopToBottom = 1;
-    static final int testBottomToTop = 2;
-    static final int testFlipStack = 3;
-    static final int testSearchStack = 4;
-    static final int exit = 5;
 
     /**
      * Displays the given prompt message and then gets a valid integer from the user.
