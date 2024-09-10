@@ -8,6 +8,10 @@ import java.util.EmptyStackException;
 // Term: Fall 2024
 // Instructor: Umama Tasnim
 public class isBalanced {
+    /**
+     * Simple ArrayList implementation of a stack. Utilizing the ArrayList functions to add
+     * and remove elements to the end of the list.
+     */
     private static class Stack {
         // Stack methods (push, pop, isEmpty, peek) will go here
         ArrayList<String> list;
@@ -45,54 +49,67 @@ public class isBalanced {
         }
     }
 
+    /**
+     * Assesses if the expression contains proper use of parentheses, brackets, or curly braces.
+     * That is, a closing symbol of }, ), or ] must always match the most recent corresponding opening symbol of {, (, or [
+     * encountered in the string when read left to right, and each opening symbol requires a closing symbol.
+     * @param expression String value to be assessed for parenthetical balance.
+     * @return true if the expression properly opens and closes parentheses, brackets, or braces.
+     */
     public static boolean isBalanced(String expression) {
-        Stack newStack = new Stack();
-        Stack comparisonStack = new Stack();
+        Stack openingSymbolsStack = new Stack();
+        //iterating over the characters in the string, storing opening symbols in a stack
+        //any closing symbols encountered require a matching opening symbol at the top of the stack or else it is unbalanced and returns false.
         for (int i = 0; i < expression.length(); i++) {
-            newStack.push(Character.toString(expression.charAt(i)));
-        }
-        int midpoint = expression.length() / 2;
-
-        for (int i = 0; i < midpoint; i++) {
-            comparisonStack.push(newStack.pop());
-        }
-        //this is to ignore the middle element if it is odd numbers.
-        if (expression.length() % 2 == 1) {
-            newStack.pop();
-        }
-        //both stacks will now have the same size, so this comparison never runs into an empty stack exception.
-
-        while (!newStack.isEmpty()) {
-                //I originally coded a function to check for palindromes for practice, but this assignment really only needs to check [], {} and (). I adapted it to check for both.
-                String newStackString = newStack.pop();
-                String comparisonStackString = comparisonStack.pop();
-            if (!newStackString.equalsIgnoreCase(comparisonStackString)) {
-                if (newStackString.equals("{")) {
-                    if (!comparisonStackString.equals("}")) {
-                        return false;
+            String currentChar = Character.toString(expression.charAt(i));
+            boolean currentCharIsOpeningSymbol = currentChar.equals("(") || currentChar.equals("[") || currentChar.equals("{");
+            boolean currentCharIsClosingSymbol = currentChar.equals(")") || currentChar.equals("]") || currentChar.equals("}");
+            if (currentCharIsOpeningSymbol) {
+                openingSymbolsStack.push(currentChar);
+            } else if(currentCharIsClosingSymbol) {
+                if(openingSymbolsStack.isEmpty()) {
+                    return false;
+                }
+                switch (openingSymbolsStack.pop()) {
+                    case "(" -> {
+                        if (!currentChar.equals(")")) {
+                            return false;
+                        }
                     }
-                } else if (newStackString.equals("[")) {
-                    if (!comparisonStackString.equals("]")) {
-                        return false;
+                    case "[" -> {
+                        if (!currentChar.equals("]")) {
+                            return false;
+                        }
                     }
-                } else if (newStackString.equals("(")) {
-                    if (!comparisonStackString.equals(")")) {
-                        return false;
+                    case "{" -> {
+                        if (!currentChar.equals("}")) {
+                            return false;
+                        }
                     }
                 }
+
             }
-
-
         }
-
-        return true;
+            return openingSymbolsStack.isEmpty();
     }
 
+
     public static void main(String[] args) {
-        // Test cases will go here
-        System.out.println(isBalanced("(())"));
-        System.out.println(isBalanced("{{[]}}"));
-        System.out.println(isBalanced("()[]{}"));
-        System.out.println(isBalanced("({[})"));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "(())", isBalanced("(())")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "{{[]}}", isBalanced("{{[]}}")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "()[]{}", isBalanced("()[]{}")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "({[})", isBalanced("({[})")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "}()[]", isBalanced("}()[]")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "([]){}", isBalanced("([]){}")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "([]){}[", isBalanced("([]){}[")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "[[]", isBalanced("[[]")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "[]]", isBalanced("[]]")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "{}}", isBalanced("{}}")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "())", isBalanced("())")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "[(])", isBalanced("[(])")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "[](){}", isBalanced("[](){}")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "5*(8-4)", isBalanced("5*(8-4)")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "5((8-4)", isBalanced("5((8-4)")));
+        System.out.println(String.format("%-7s ->\t Function output: %s", "Empty", isBalanced("")));
     }
 }
