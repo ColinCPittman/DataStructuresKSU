@@ -58,18 +58,24 @@ public class isBalanced {
      */
     public static boolean isBalanced(String expression) {
         Stack openingSymbolsStack = new Stack();
-        //iterating over the characters in the string, storing opening symbols in a stack
-        //any closing symbols encountered require a matching opening symbol at the top of the stack or else it is unbalanced and returns false.
+        //Iterating over the characters in the string left to right, storing opening symbols in a stack.
+        //Any closing symbols encountered require there to be a matching opening symbol at the top of the stack, else it is unbalanced.
+        //This method ignores characters that aren't (), {}, and [] so it works for equations with variables and operators too.
         for (int i = 0; i < expression.length(); i++) {
+
             String currentChar = Character.toString(expression.charAt(i));
             boolean currentCharIsOpeningSymbol = currentChar.equals("(") || currentChar.equals("[") || currentChar.equals("{");
             boolean currentCharIsClosingSymbol = currentChar.equals(")") || currentChar.equals("]") || currentChar.equals("}");
+
             if (currentCharIsOpeningSymbol) {
                 openingSymbolsStack.push(currentChar);
+
             } else if(currentCharIsClosingSymbol) {
+
                 if(openingSymbolsStack.isEmpty()) {
                     return false;
                 }
+
                 switch (openingSymbolsStack.pop()) {
                     case "(" -> {
                         if (!currentChar.equals(")")) {
