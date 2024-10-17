@@ -20,17 +20,17 @@ public class bucketSorting {
         System.out.printf("Before: %-32s After: %-30s%n", Arrays.toString(arr4), Arrays.toString(bucketSort(arr4)));
     }
 
-    private static int[] bucketSort(int[] arr) {
+    private static int[] bucketSort(int[] inputArray) {
 
         // Return if array is only 1 or empty.
-        if (arr.length < 2) return arr;
+        if (inputArray.length < 2) return inputArray;
 
 
         // Determine max based on absolute values
         int max = 0;
-        for (int i = 0; i < arr.length; i++) {
-            if (Math.abs(arr[i]) > max) {
-                max = Math.abs(arr[i]);
+        for (int i = 0; i < inputArray.length; i++) {
+            if (Math.abs(inputArray[i]) > max) {
+                max = Math.abs(inputArray[i]);
             }
         }
 
@@ -46,51 +46,50 @@ public class bucketSorting {
 
         // This approach is to divide by i*10, then mod 10 to isolate the value in the position.
         // This algorithm reads the digits right to left in each int in the array.
-        for (int bucketNum = 0, factorOfTen = 1; bucketNum < digitsInMax; bucketNum++, factorOfTen *= 10) {
+        for (int digitPos = 0, factorOfTen = 1; digitPos < digitsInMax; digitPos++, factorOfTen *= 10) {
 
-            for (int j = arr.length - 1; j >= 0; j--) {
+            for (int intPointer = inputArray.length - 1; intPointer >= 0; intPointer--) {
 
                 // I will only consider the absolute value of the number and handle negatives when updating the array after each pass.
-                int landingBucket = (Math.abs(arr[j]) / factorOfTen) % 10;
-                buckets[landingBucket].add(arr[j]);
+                int landingBucket = (Math.abs(inputArray[intPointer]) / factorOfTen) % 10;
+                buckets[landingBucket].add(inputArray[intPointer]);
             }
 
             // Next section is to update the array with the new values after this pass.
-            // I realized in testing that this needed to account for positive and negative values.
-            // Negative numbers are be mixed with positive numbers within buckets.
+            // Negative numbers are mixed with positive numbers within buckets.
             // So the approach here is just to repopulate the negative values first, then positive.
 
-            int updateIndex = 0; // counter used to insert the new values into the original array
+            int updatePointer = 0; // will be used insert the new values into the original array and increment
 
             // When considering negative numbers, larger buckets actually indicate smaller numbers.
-            // So here I'll flip the algorithm shown in class and pop values from the largest bucket first.
+            // So to remain consistent with the sort order, we have to flip the algorithm and pop values from the 9 bucket first.
 
             //negative numbers
-            for (int k = buckets.length - 1; k >= 0; k--) { // loop from bucket 9 to 0
+            for (int bucketPointer = buckets.length - 1; bucketPointer >= 0; bucketPointer--) { // loop from bucket 9 to 0
 
-                if (!buckets[k].isEmpty()) {
+                if (!buckets[bucketPointer].isEmpty()) {
 
 
-                    for (int l = buckets[k].size() - 1; l >= 0; l--) { // loop down/backward through the list starting from the end.
+                    for (int intPointer = buckets[bucketPointer].size() - 1; intPointer >= 0; intPointer--) { // loop down/backward through the list starting from the end.
 
-                        if (buckets[k].get(l) < 0) { // only place negative numbers found
+                        if (buckets[bucketPointer].get(intPointer) < 0) { // only place negative numbers found
 
-                            arr[updateIndex++] = buckets[k].get(l);
+                            inputArray[updatePointer++] = buckets[bucketPointer].get(intPointer);
                         }
                     }
                 }
             }
 
             // positive numbers
-            for (int k = 0; k < buckets.length; k++) { //loop from bucket 0 to 9
+            for (int bucketPointer = 0; bucketPointer < buckets.length; bucketPointer++) { //loop from bucket 0 to 9
 
-                if (!buckets[k].isEmpty()) {
+                if (!buckets[bucketPointer].isEmpty()) {
 
-                    for (int l = buckets[k].size() - 1; l >= 0; l--) { // loop down/backward through the list starting from the end
+                    for (int intPointer = buckets[bucketPointer].size() - 1; intPointer >= 0; intPointer--) { // loop down/backward through the list starting from the end
 
-                        if (buckets[k].get(l) >= 0) { // only place positive numbers found
+                        if (buckets[bucketPointer].get(intPointer) >= 0) { // only place non-negative numbers found
 
-                            arr[updateIndex++] = buckets[k].get(l);
+                            inputArray[updatePointer++] = buckets[bucketPointer].get(intPointer);
                         }
                     }
                 }
@@ -102,6 +101,6 @@ public class bucketSorting {
             }
 
         }
-        return arr;
+        return inputArray;
     }
 }
