@@ -3,15 +3,18 @@ package Assignments.Assignment6;
 import java.util.*;
 
 public class BST {
-    private class Node {
-        int value;
-        Node left;
-        Node right;
-
-        Node(int value) {
-            this.value = value;
-        }
-    }
+    public static final String menu = """     
+                
+            -----MAIN MENU-----
+            1. Insert a value
+            2. Display traversals
+            3. Show height, min, max, and check balance
+            4. Search for a value
+            5. Delete a value
+            6. Print all paths
+            7. Exit program
+            """;
+    //constants for the easier readability in the switch statement of the main methods
     static final int insert = 1;
     static final int displayTraversals = 2;
     static final int showProperties = 3;
@@ -19,29 +22,39 @@ public class BST {
     static final int delete = 5;
     static final int printPaths = 6;
     static final int exit = 7;
-
-    public static final String menu = """     
-            
-        -----MAIN MENU-----
-        1. Insert a value
-        2. Display traversals
-        3. Show height, min, max, and check balance
-        4. Search for a value
-        5. Delete a value
-        6. Print all paths
-        7. Exit program
-        """;
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private Node root;
 
-    public void insert(int value) { //this method is instructed to not take a node as a parameter, suggesting an iterative approach, rather than recursive.
+    /**
+     * Displays the given prompt message and then gets a valid integer from the user.
+     *
+     * @param prompt The message to display to the user.
+     * @return The integer entered by the user.
+     */
+    public static int promptUserForInteger(String prompt) {
+        int input = 0;
+        while (true) {
+            try {
+                System.out.print(prompt);
+                input = Integer.parseInt(scanner.nextLine());
+                break;
+            } catch (Exception e) {
+                System.out.println("Invalid input, please enter a valid integer.");
+            }
+        }
+        return input;
+    }
 
-        if(root == null) {
+    // I did the insert method below (and others) iteratively because this was before I got clarification from professor
+    // that helper methods can be used. So there is a mix of recursive and non-recursive methods in this class.
+    public void insert(int value) {
+
+        if (root == null) {
             root = new Node(value);
         }
 
         Node current = root;
-        Node previous = null;
+        Node previous = null; //this is the node we are adding to since current will be null after next while loop
 
         while (current != null) {
             previous = current;
@@ -56,7 +69,8 @@ public class BST {
             }
         }
 
-        if(value > previous.value) {
+        //adding the node
+        if (value > previous.value) {
             previous.right = new Node(value);
         } else {
             previous.left = new Node(value);
@@ -64,17 +78,24 @@ public class BST {
 
     }
 
+    /**
+     * Performs a binary search on the tree. O(logn) time for balanced trees.
+     * Returns true if it finds the value in the tree; else false.
+     *
+     * @param value to be searched for
+     * @return true of the value is present in the tree
+     */
     public boolean search(int value) {
 
-        if(root == null) return false;
+        if (root == null) return false;
 
         Node current = root;
 
-        while(current != null) {
+        while (current != null) {
 
             if (current.value == value) {
                 return true;
-            } else if(value > current.value) {
+            } else if (value > current.value) {
                 current = current.right;
             } else {
                 current = current.left;
@@ -83,48 +104,55 @@ public class BST {
         return false;
     }
 
+    /**
+     * Preforms a binary deletion of the value if it is present in the tree.
+     * This follows slide 22 of Chapter 25_Trees, which outlines the three cases for deletion from BST.
+     * Copies the smallest value in the right subtree.
+     *
+     * @param value in the tree to be searched for and deleted.
+     */
     public void delete(int value) {
         if (root == null) return;
 
-        Node current = root;
-        Node previous = null;
+        Node nodeToDelete = root;
+        Node previousNode = null;
 
         //find target node
 
-        while (current != null && current.value != value) {
-            previous = current;
-            if (value < current.value) {
-                current = current.left;
+        while (nodeToDelete != null && nodeToDelete.value != value) {
+            previousNode = nodeToDelete;
+            if (value < nodeToDelete.value) {
+                nodeToDelete = nodeToDelete.left;
             } else {
-                current = current.right;
+                nodeToDelete = nodeToDelete.right;
             }
         }
 
-        if (current == null) return;
+        if (nodeToDelete == null) return; //reached the end of the tree and value to be deleted wasn't found, so there's nothing to delete.
 
         //case 1, leaf node
 
-        if (current.left == null && current.right == null) {
-            if (current == root) {
+        if (nodeToDelete.left == null && nodeToDelete.right == null) {
+            if (nodeToDelete == root) {
                 root = null;
-            } else if (previous.left == current) {
-                previous.left = null;
+            } else if (previousNode.left == nodeToDelete) {
+                previousNode.left = null;
             } else {
-                previous.right = null;
+                previousNode.right = null;
             }
         }
 
         //case 2, has 1 subtree
 
-        else if (current.left == null || current.right == null) {
-            Node child = (current.left != null) ? current.left : current.right;
+        else if (nodeToDelete.left == null || nodeToDelete.right == null) { //this OR statement because we already eliminated the possibility that both are null.
+            Node onlyChild = (nodeToDelete.left != null) ? nodeToDelete.left : nodeToDelete.right;
 
-            if (current == root) {
-                root = child;
-            } else if (previous.left == current) {
-                previous.left = child;
+            if (nodeToDelete == root) { //if the while loop above never executed (because the root value matched), then nodeToDelete is still on root.
+                root = onlyChild;
+            } else if (previousNode.left == nodeToDelete) {
+                previousNode.left = onlyChild;
             } else {
-                previous.right = child;
+                previousNode.right = onlyChild;
             }
         }
 
@@ -132,26 +160,30 @@ public class BST {
 
         else {
 
-            Node smallestDescendantPrev = current;
-            Node smallestDescendant = current.right;
+            //similar to the first while loop, iterate to the leftmost leaf of the nodeToDelete's right subtree
+            Node smallestDescendantPrev = nodeToDelete;
+            Node smallestDescendant = nodeToDelete.right;
 
             while (smallestDescendant.left != null) {
                 smallestDescendantPrev = smallestDescendant;
                 smallestDescendant = smallestDescendant.left;
             }
 
-            //copy node y to node x that we are deleting
-            current.value = smallestDescendant.value;
+            //copy the smallest descendant in right subtree to the value in the node we are deleting (overwriting in this case)
+            nodeToDelete.value = smallestDescendant.value;
 
-            //smallest descendant could be either left or right child of previous
-            //identify it and bypass the smallest descendant by linking it with its potential larger child
-            if (smallestDescendantPrev.left == smallestDescendant) {
+
+            // Now to delete the smallest descendant, done by bypassing (unlinking) it and connecting its leftover potential larger subtree to its immediate ancestor.
+            if (smallestDescendantPrev.left == smallestDescendant) { //this will always be the case with one exception covered in the else statement
                 smallestDescendantPrev.left = smallestDescendant.right;
-            } else {
+            }
+            else { //smallestDescendantPrev.right is the smallest descendant, only occurs when the node being deleted is immediately to the right of root.
                 smallestDescendantPrev.right = smallestDescendant.right;
             }
         }
     }
+    // I talked with and emailed the professor to confirm, these recursive methods are because I preferred to do these
+    // the recursive way, this lets the required functions that we had to define (as null with no parameters) to still work with this approach.
     private void inorderHelper(Node node) {
         if (node != null) {
             inorderHelper(node.left);
@@ -159,20 +191,23 @@ public class BST {
             inorderHelper(node.right);
         }
     }
+
     private void preorderHelper(Node node) {
-        if(node != null) {
-            System.out.println(node.value);
+        if (node != null) {
+            System.out.print(node.value + " ");
             preorderHelper(node.left);
             preorderHelper(node.right);
         }
     }
+
     private void postorderHelper(Node node) {
-        if(node != null) {
+        if (node != null) {
             postorderHelper(node.left);
             postorderHelper(node.right);
-            System.out.println(node.value);
+            System.out.print(node.value + " ");
         }
     }
+
     public void inorderTraversal() {
         inorderHelper(root);
     }
@@ -185,9 +220,9 @@ public class BST {
         postorderHelper(root);
     }
 
-    //I got stuck on this one trying to do it recursively but couldn't get it working
-    //ended up having to follow https://www.geeksforgeeks.org/level-order-tree-traversal/ for implementation
-    //I picked the queue implementation mentioned on that page due to it having the better time complexity
+    // I got stuck on this one trying to do it recursively but couldn't get it working
+    // ended up having to follow https://www.geeksforgeeks.org/level-order-tree-traversal/ for implementation
+    // I picked the queue implementation mentioned on that page due to it having the better time complexity
     public List<Integer> levelOrderTraversal() {
         List<Integer> result = new ArrayList<>();
 
@@ -207,28 +242,27 @@ public class BST {
     }
 
     /**
-     * Recursive helper method for the height function
+     * Recursive helper method for the height function.
+     *
      * @param node to be assessed for height
      * @return height of the node
      */
     private int heightHelper(Node node) {
-        if(node != null) return -1; //-1 because otherwise leaf nodes end up with a height of 1 from the return call.
+        if (node == null) return -1; //-1 so a leaf node returns a height of one when combined with the +1 in the recursive calls.
 
         int leftHeight = heightHelper(node.left);
         int rightHeight = heightHelper(node.right);
 
-        if(leftHeight > rightHeight) {
-            return leftHeight + 1;
-        } else {
-            return rightHeight + 1;
-        }
+        return 1 + Math.max(leftHeight, rightHeight);
     }
+
+
     public int height() {
-        return heightHelper(root);
+        return root != null ? heightHelper(root) : 0;
     }
 
     public int minValue() {
-        if(root == null) throw new NoSuchElementException("Tree is empty");
+        if (root == null) throw new NoSuchElementException("Tree is empty");
 
         Node current = root;
 
@@ -239,11 +273,11 @@ public class BST {
     }
 
     public int maxValue() {
-        if(root == null) throw new NoSuchElementException("Tree is empty");
+        if (root == null) throw new NoSuchElementException("Tree is empty");
 
         Node current = root;
 
-        while(current.right != null) {
+        while (current.right != null) {
             current = current.right;
         }
 
@@ -251,7 +285,7 @@ public class BST {
     }
 
     public boolean isBalanced() {
-        return isBalancedHelper(root);
+        return root != null ? isBalancedHelper(root) : true;
     }
 
     /**
@@ -274,12 +308,13 @@ public class BST {
     public void printPaths() {
         if (root == null) return;
 
-        List<Integer> leaves = levelOrderTraversal();
+        List<Integer> leaves = levelOrderTraversal(); //using this list to iterate through the leaves in a for each loop
 
         for (Integer value : leaves) {
             System.out.print("Path from root '" + root.value + "' to '" + value + "': ");
             Node current = root;
 
+            //Binary search for the value and print the numbers along the way.
             while (current != null) {
                 System.out.print(current.value + " ");
                 if (current.value == value) {
@@ -293,26 +328,16 @@ public class BST {
             System.out.println();
         }
     }
-    /**
-     * Displays the given prompt message and then gets a valid integer from the user.
-     *
-     * @param prompt The message to display to the user.
-     * @return The integer entered by the user.
-     */
-    public static int promptUserForInteger(String prompt) {
-        int input = 0;
-        while (true) {
-            try {
-                System.out.print(prompt);
-                input = Integer.parseInt(scanner.nextLine());
-                break;
-            } catch (Exception e) {
-                System.out.println("Invalid input, please enter a valid integer.");
-            }
-        }
-        return input;
-    }
 
+    private class Node {
+        int value;
+        Node left;
+        Node right;
+
+        Node(int value) {
+            this.value = value;
+        }
+    }
     public static void main(String[] args) {
         BST bst = new BST();
         while (true) {
@@ -325,38 +350,53 @@ public class BST {
                     break;
 
                 case displayTraversals:
-                    System.out.print("Inorder Traversal: ");
+                    System.out.print("\nInorder Traversal: ");
                     bst.inorderTraversal();
-                    System.out.println();
 
-                    System.out.print("Preorder Traversal: ");
+                    System.out.print("\nPreorder Traversal: ");
                     bst.preorderTraversal();
-                    System.out.println();
 
-                    System.out.print("Postorder Traversal: ");
+                    System.out.print("\nPostorder Traversal: ");
                     bst.postorderTraversal();
-                    System.out.println();
 
-                    System.out.println("Level Order Traversal: " + bst.levelOrderTraversal());
+                    System.out.println("\nLevel Order Traversal: " + bst.levelOrderTraversal());
                     break;
 
                 case showProperties:
-                    System.out.println("Height of BST: " + bst.height());
-                    System.out.println("Minimum value in BST: " + bst.minValue());
-                    System.out.println("Maximum value in BST: " + bst.maxValue());
-                    System.out.println("Is BST Balanced? " + (bst.isBalanced() ? "Yes" : "No"));
+                    System.out.println("Height: " + bst.height());
+                    System.out.print("Minimum value: ");
+                    try { //try catches here because I didn't want to return a number when there are no elements in the tree, it throws a no-such-element exception instead.
+                        System.out.println(bst.minValue());
+                    } catch (NoSuchElementException E) {
+                        System.out.println(E.getMessage());
+                    }
+                    try {
+                        System.out.println("Maximum value: " + bst.maxValue());
+                    }catch (NoSuchElementException E) {
+                        System.out.println(E.getMessage());
+                    }
+                    System.out.println("Tree is Balanced? " + bst.isBalanced());
                     break;
 
                 case search:
                     int valueToSearch = promptUserForInteger("Enter value to search: ");
-                    boolean found = bst.search(valueToSearch);
-                    System.out.println("Value " + valueToSearch + " is " + (found ? "found" : "not found") + " in the BST.");
+
+                    if (bst.search(valueToSearch)) {
+                        System.out.println("Value " + valueToSearch + " is in the BST.");
+                    } else {
+                        System.out.println("Value " + valueToSearch + " is not in the BST.");
+                    }
                     break;
 
                 case delete:
                     int valueToDelete = promptUserForInteger("Enter value to delete: ");
-                    bst.delete(valueToDelete);
-                    System.out.println("Value " + valueToDelete + " has been deleted from the BST.");
+                    if(bst.search(valueToDelete)) { //this search is just to be able to give feedback about whether it was deleted or not since delete() doesn't return boolean.
+                        bst.delete(valueToDelete);
+                        System.out.println("Value " + valueToDelete + " has been deleted from the BST.");
+                    } else {
+                        System.out.println("No matching value in the tree to delete.");
+                    }
+
                     break;
 
                 case printPaths:
